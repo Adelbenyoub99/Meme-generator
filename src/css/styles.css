@@ -1,0 +1,148 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+.App h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+.App.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 20px;
+}
+.App.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.App.col-md-6 {
+  flex: 0 0 50%;
+  max-width: 50%;
+  padding: 0 10px;
+}
+.App.col-md-12 {
+  flex: 0 0 100%;
+  max-width: 100%;
+  padding: 0 10px;
+}
+/* Style du formulaire d'envoi d'image */
+.ImageUploadForm{
+  margin-top: 25px;
+}
+input[type="file"]::file-selector-button {
+  display: block;
+  margin-bottom: 10px;
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+input[type="file"]::file-selector-button:hover {
+  background-color: #45a049;
+}
+/* Style de la galerie de mèmes */
+.MemeGallery {
+  list-style-type: none;
+  padding: 0;
+}
+.MemeGallery li {
+  margin-bottom: 20px;
+}
+.MemeGallery img {
+  max-width: 100%;
+  height: auto;
+}
+/* Style de l'éditeur de texte */
+.TextEditor {
+  margin-top: 25px;
+  margin-bottom: 20px;
+}
+.TextEditor input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+.TextEditor input[type="color"] {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+.TextEditor input[type="number"] {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+.TextEditor p{
+  color: #000000;
+  font-size: 25px;
+}
+/* Style de l'aperçu du mème */
+.MemePreview {
+  text-align: center;
+  margin-top: 20px;
+  position: relative;
+}
+.MemePreview img {
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 10px;
+}
+.MemePreview p {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+}
+.MemePreview .top-text {
+  top: 43px; 
+}
+.MemePreview .bottom-text {
+  bottom: 43px; 
+}
+/* Style du bouton de téléchargement et de partage*/
+.MemePreview button.telecharger {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  margin-right: 15px;
+}
+.MemePreview button.telecharger:hover {
+  background-color: #45a049;
+}
+.MemePreview button.fbpartage {
+  background-color: blue;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  margin-left: 15px;
+  margin-right: 15px;
+}
+.MemePreview button.fbpartage:hover {
+  background-color: #3c07fa;
+}
+.MemePreview button.xpartage {
+  background-color: #2a2b2a;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  margin-left: 15px;
+}
+.MemePreview.xpartage:hover {
+  background-color: #0c0c0c;
+}
+/* Style des messages d'erreur */
+.error-message {
+  color: red;
+  font-size: 14px;
+  margin-top: 5px;
+}
