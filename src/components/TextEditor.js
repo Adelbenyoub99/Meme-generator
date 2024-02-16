@@ -10,7 +10,7 @@ function TextEditor(props) {
       <p>Couleur :</p>
       <input type="color" onChange={props.onTextColorChange} />
       <p>Taille :</p>
-      <input type="number" min="10" max="100" step="5" onChange={props.onTextSizeChange} />
+      <input type="number" min="10" max="65" step="5" onChange={props.onTextSizeChange} />
     </div>
   );
 }

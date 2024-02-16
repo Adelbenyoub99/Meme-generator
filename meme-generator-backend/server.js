@@ -3,10 +3,13 @@ const cors = require('cors');
 const multer = require('multer');
 const fs = require('fs');
 const path = require('path');
-const { createCanvas, loadImage } = require('canvas');
-
+const cloudinary = require('cloudinary').v2;
 const app = express();
 const port = 5000;
+// Charger les informations de configuration Cloudinary depuis le fichier JSON
+const cloudinaryConfig = JSON.parse(fs.readFileSync('cloudinary_config.json'));
+
+cloudinary.config(cloudinaryConfig);
 
 app.use(cors());
 app.use(express.json());
@@ -22,70 +25,71 @@ const storage = multer.diskStorage({
     cb(null, 'uploads/');
   },
   filename: function (req, file, cb) {
-    cb(null, file.originalname);
+    const fileName=file.originalname;
+    cb(null, fileName);
   }
 });
 const upload = multer({ storage: storage });
-
-const db = []; // Structure de données pour stocker les informations sur les mèmes téléchargés
+let db = []; // Structure de données pour stocker les informations sur les mèmes téléchargés
 
 // Route pour télécharger l'image
-app.post('/upload', upload.single('image'), (req, res) => {
+app.post('/upload', upload.single('image'), async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'Aucune image téléchargée' });
   }
-  const imageUrl = `http://localhost:${port}/uploads/${req.file.filename}`;
-  db.push({ imageUrl: imageUrl, filename: req.file.filename }); // Ajoutez les informations sur le mème à la base de données
-  res.json({ message: 'Image uploaded successfully', imageUrl: imageUrl });
-});
-
-// Route pour stocker l'image avec le texte ajouté
-app.post('/store', async (req, res) => {
-  const { imageUrl, topText, bottomText, textColor, textSize } = req.body;
+  const options = {
+    folder: 'memes',
+    use_filename: true,
+    unique_filename: true,
+    overwrite: true,
+  };
+  const tempImageUrl = path.join(__dirname, 'uploads', req.file.filename);
 
   try {
-    // Charger l'image téléchargée
-    const image = await loadImage(imageUrl);
+    const cloudinaryResponse=await cloudinary.uploader.upload(tempImageUrl,options)
+    fs.rm(tempImageUrl,err=>{console.error(err)})
+    res.json({ message: 'Image uploaded successfully', imageUrl: cloudinaryResponse.url, id:cloudinaryResponse.public_id});
 
-    // Créer un nouveau canevas
-    const canvas = createCanvas(image.width, image.height);
-    const ctx = canvas.getContext('2d');
-
-    // Dessiner l'image téléchargée sur le canevas
-    ctx.drawImage(image, 0, 0);
-
-    // Ajouter du texte sur l'image
-    ctx.fillStyle = textColor;
-    ctx.font = `${textSize}px Arial`;
-    ctx.textAlign = 'center';
-    ctx.fillText(topText, canvas.width / 2, 40);
-    ctx.fillText(bottomText, canvas.width / 2, canvas.height - 20);
-
-    // Enregistrer le canevas en tant qu'image sur le serveur
-    const fileName = `meme_with_text_${Date.now()}.png`;
-    const filePath = path.join(__dirname, 'uploads', fileName);
-    const out = fs.createWriteStream(filePath);
-    const stream = canvas.createPNGStream();
-    stream.pipe(out);
-
-    out.on('finish', () => {
-      db.push({ imageUrl: `http://localhost:${port}/uploads/${fileName}`, topText, bottomText, textColor, textSize });
-      res.json({ message: 'Image saved successfully', imageUrl: `http://localhost:${port}/uploads/${fileName}` });
-    });
   } catch (error) {
-    console.error('Error processing image:', error);
+    console.error('Error uploading image:', error);
     res.status(500).json({ error: 'Internal server error' });
+
+  }
+});
+
+// Route pour enregistrer les mèmes partagés
+app.post('/sharedImages', upload.single('image'), async (req, res) => {
+  const options = {
+    folder: 'memesShared',
+    use_filename: true,
+    unique_filename: false,
+    overwrite: true,
+  };
+  const tempImageUrl = path.join(__dirname, 'uploads', req.file.filename);
+  try {
+    const cloudinaryResponse=await cloudinary.uploader.upload(tempImageUrl,options)
+    fs.rm(tempImageUrl,err=>{console.error(err)})
+    res.json({ message: 'Image uploaded successfully', imageUrl: cloudinaryResponse.url, id:cloudinaryResponse.public_id});
+    
+  } catch (error) {
+    console.error('Error uploading image:', error);
+    res.status(500).json({ error: 'Internal server error' });
+    
   }
 });
 
 // Route pour obtenir la liste des mèmes
-app.get('/memes', (req, res) => {
-  const memesWithText = db.map(meme => ({
-    imageUrl: meme.imageUrl,
-    topText: meme.topText,
-    bottomText: meme.bottomText
-  }));
-  res.json(memesWithText);
+app.get('/memes',async (req, res) => {
+  db=[];
+  const results=await cloudinary.search
+  .expression('folder:memes')
+  .execute()
+  results.resources.forEach(resource=>{
+    
+    db.push({ imageUrl: resource.url });
+  })
+
+  res.json(db);
 });
 
 // Serveur statique pour servir les images

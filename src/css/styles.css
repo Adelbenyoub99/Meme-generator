@@ -51,9 +51,24 @@ input[type="file"]::file-selector-button:hover {
 }
 .MemeGallery li {
   margin-bottom: 20px;
+  position: relative;
 }
 .MemeGallery img {
   max-width: 100%;
+  height: auto;
+  margin-bottom: 10px;
+}
+.MemeGallery p {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+}
+.MemeGallery .top-text {
+  top: 43px; 
+  height: auto;
+}
+.MemeGallery .bottom-text {
+  bottom: 43px; 
   height: auto;
 }
 /* Style de l'éditeur de texte */
@@ -72,7 +87,7 @@ input[type="file"]::file-selector-button:hover {
   margin-bottom: 10px;
 }
 .TextEditor input[type="number"] {
-  width: 100%;
+  width: 15%;
   padding: 10px;
   margin-bottom: 10px;
 }
@@ -126,16 +141,7 @@ input[type="file"]::file-selector-button:hover {
   margin-right: 15px;
 }
 .MemePreview button.fbpartage:hover {
-  background-color: #3c07fa;
-}
-.MemePreview button.xpartage {
-  background-color: #2a2b2a;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  cursor: pointer;
-  border-radius: 5px;
-  margin-left: 15px;
+  background-color: #0717fa88;
 }
 .MemePreview.xpartage:hover {
   background-color: #0c0c0c;

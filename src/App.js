@@ -1,73 +1,59 @@
 import React, { useState, useEffect } from 'react';
-import './css/styles.css';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import './css/styles.css'; 
+import 'bootstrap/dist/css/bootstrap.min.css'; 
 import ImageUploadForm from './components/ImageUploadForm';
 import TextEditor from './components/TextEditor';
 import MemePreview from './components/MemePreview';
 import MemeGallery from './components/MemeGallery';
 
 function App() {
-  const [selectedImage, setSelectedImage] = useState(null);
+  // Utilisation des hooks d'état pour gérer les données de l'application
+  const [selectedImage, setSelectedImage] = useState(null); 
   const [topText, setTopText] = useState('');
   const [bottomText, setBottomText] = useState('');
   const [textColor, setTextColor] = useState('#ffffff');
   const [textSize, setTextSize] = useState(36);
   const [memes, setMemes] = useState([]);
 
+  // Utilisation de useEffect pour récupération des mèmes après le premier rendu
   useEffect(() => {
     fetchMemes();
   }, []);
 
+  // Fonction pour récupérer la liste des mèmes depuis le serveur
   const fetchMemes = async () => {
     try {
-      const response = await fetch('http://localhost:5000/memes');
+      const response = await fetch('http://localhost:5000/memes'); // Requête GET
       const data = await response.json();
-      setMemes(data);
+      setMemes(data); 
     } catch (error) {
       console.error('Error fetching memes:', error);
     }
   };
 
+  // Fonction pour gérer le changement de l'image sélectionnée
   const handleImageChange = (event) => {
     setSelectedImage(event.target.files[0]);
-    uploadImage(event.target.files[0]);
   };
 
-  const uploadImage = async (image) => {
-    const formData = new FormData();
-    formData.append('image', image);
-
-    try {
-      const response = await fetch('http://localhost:5000/upload', {
-        method: 'POST',
-        body: formData
-      });
-      const data = await response.json();
-      console.log(data.message);
-    } catch (error) {
-      console.error('Error uploading image:', error);
-    }
-  };
-
+  // Fonction pour gérer le changement du texte supérieur
   const handleTopTextChange = (event) => {
     setTopText(event.target.value);
   };
 
+  // Fonction pour gérer le changement du texte inférieur
   const handleBottomTextChange = (event) => {
     setBottomText(event.target.value);
   };
 
+  // Fonction pour gérer le changement de la couleur du texte
   const handleTextColorChange = (event) => {
     setTextColor(event.target.value);
   };
 
+  // Fonction pour gérer le changement de la taille du texte
   const handleTextSizeChange = (event) => {
     setTextSize(event.target.value);
-  };
-
-  const handleMemeSelect = (meme) => {
-    setTopText(meme.topText);
-    setBottomText(meme.bottomText);
   };
 
   return (
@@ -82,7 +68,7 @@ function App() {
               onBottomTextChange={handleBottomTextChange}
               onTextColorChange={handleTextColorChange}
               onTextSizeChange={handleTextSizeChange}
-            />
+            /> 
           </div>
           <div className="col-md-6">
             {selectedImage && (
@@ -92,13 +78,14 @@ function App() {
                 bottomText={bottomText}
                 textColor={textColor}
                 textSize={textSize}
+                selectedImage={selectedImage}
               />
             )}
           </div>
         </div>
         <div className="row">
           <div className="col-md-12">
-            <MemeGallery memes={memes} onSelect={handleMemeSelect} />
+            <MemeGallery memes={memes}/> 
           </div>
         </div>
       </div>

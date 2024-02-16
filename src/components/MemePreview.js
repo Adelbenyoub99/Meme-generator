@@ -1,10 +1,22 @@
 import React from 'react';
 import '../css/styles.css';
 import { faDownload } from '@fortawesome/free-solid-svg-icons';
-import { faFacebook, faTwitter } from '@fortawesome/free-brands-svg-icons';
+import { faFacebook } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 function MemePreview(props) {
+  const uploadImage = async (formData) => {
+    try {
+      const response = await fetch('http://localhost:5000/upload', {
+        method: 'POST',
+        body: formData
+      });
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+    }
+  };
   const handleDownloadClick = () => {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
@@ -13,45 +25,86 @@ function MemePreview(props) {
     image.onload = () => {
       canvas.width = image.width;
       canvas.height = image.height;
-
-      // Dessinez l'image sur le canevas
+      // Dessine l'image sur le canevas
       ctx.drawImage(image, 0, 0);
 
-      // Ajoutez du texte sur l'image
+      // Ajout du texte sur l'image
       ctx.fillStyle = props.textColor;
       ctx.font = `${props.textSize}px Arial`;
       ctx.textAlign = 'center';
       ctx.fillText(props.topText, canvas.width / 2, 40);
       ctx.fillText(props.bottomText, canvas.width / 2, canvas.height - 20);
 
-      // Convertir le canevas en blob
+      // Canevas en blob
       canvas.toBlob(blob => {
-        // Créez un lien de téléchargement
+        // Crée un lien de téléchargement
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
-        link.download = 'meme.png';
-
-        // Cliquez sur le lien pour déclencher le téléchargement
+        link.download = props.selectedImage.name;
+        const formData=new FormData();
+        const image = new File([blob], props.selectedImage.name, {type: 'image/png'});
+        formData.append('image',image);
+        uploadImage(formData);
+        // Déclenche le téléchargement
         link.click();
       }, 'image/png');
     };
-
-    // Chargez l'image
+    // Charge l'image
     image.src = props.imageUrl;
   };
 
-  const shareOnFacebook = () => {
-    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-      'URL_DE_VOTRE_SITE_WEB'
-    )}&picture=${encodeURIComponent(props.imageUrl)}`;
-    window.open(facebookUrl, '_blank');
+  const shareOnFacebook = async () => {
+    try {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const image = new Image();
+      image.crossOrigin = 'anonymous';
+      image.onload = async () => {
+        canvas.width = image.width;
+        canvas.height = image.height;
+
+        ctx.drawImage(image, 0, 0);
+  
+        ctx.fillStyle = props.textColor;
+        ctx.font = `${props.textSize}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.fillText(props.topText, canvas.width / 2, 40);
+        ctx.fillText(props.bottomText, canvas.width / 2, canvas.height - 20);
+  
+
+        canvas.toBlob(async (blob) => {
+
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(blob);
+          link.download = props.selectedImage.name;
+          const formData = new FormData();
+          const imageFile = new File([blob], props.selectedImage.name, { type: 'image/png' });
+          formData.append('image', imageFile);
+          // Télécharger l'image et récupérez l'URL
+          const {imageUrl} = await shareImage(formData);
+          // Générer l'URL Facebook et ouvrez une nouvelle fenêtre
+          const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${imageUrl}`;
+          window.open(facebookUrl, '_blank');
+        }, 'image/png');
+      };
+  
+      image.src = props.imageUrl;
+    } catch (error) {
+      console.error('Error sharing on Facebook:', error);
+    }
   };
 
-  const shareOnTwitter = () => {
-    const twitterUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(
-      props.imageUrl
-    )}&text=${encodeURIComponent(props.topText + ' ' + props.bottomText)}`;
-    window.open(twitterUrl, '_blank');
+  const shareImage = async (formData) => {
+    try {
+      const response = await fetch('http://localhost:5000/sharedImages', {
+        method: 'POST',
+        body: formData
+      });
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+    }
   };
 
   return (
@@ -71,9 +124,6 @@ function MemePreview(props) {
       </button>
       <button className='fbpartage' onClick={shareOnFacebook}>
         <FontAwesomeIcon icon={faFacebook} />
-      </button>
-      <button className='xpartage' onClick={shareOnTwitter}>
-        <FontAwesomeIcon icon={faTwitter} />
       </button>
     </div>
   );
